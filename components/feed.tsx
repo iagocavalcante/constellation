@@ -115,6 +115,8 @@ export const Feed = () => {
             username={item.author.handle}
             displayName={item.author.displayName}
             avatar={item.author.avatar}
+            uri={item.uri}
+            cid={item.cid}
             imageUrl={getImageUrl(item)}
             caption={item.record.text}
             likes={item.likeCount}

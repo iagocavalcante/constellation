@@ -464,6 +464,73 @@ export async function searchPosts(params: SearchParams) {
   }
 }
 
+export async function likePost(uri: string, cid: string) {
+  try {
+    if (!agent.assertDid) {
+      throw new Error("Not authenticated");
+    }
+
+    await agent.like(uri, cid);
+
+    return true;
+  } catch (error) {
+    console.error("Error liking post:", error);
+    return false;
+  }
+}
+
+// Function to unlike a post
+export async function unlikePost(uri: string) {
+  try {
+    if (!agent.assertDid) {
+      throw new Error("Not authenticated");
+    }
+
+    // First, get the like record
+    const { data: likes } = await agent.app.bsky.feed.getLikes({
+      uri,
+      limit: 1,
+      cursor: undefined,
+    });
+
+    // Find our like
+    const myLike = likes.likes.find(
+      (like) => like.actor.did === agent.session?.did,
+    );
+
+    if (myLike) {
+      // Delete the like record
+      await agent.deleteLike(myLike.uri);
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Error unliking post:", error);
+    return false;
+  }
+}
+
+// Add this function to check if a post is liked by the user
+export async function isPostLikedByUser(uri: string): Promise<boolean> {
+  try {
+    if (!agent.assertDid) {
+      return false;
+    }
+
+    const { data: likes } = await agent.app.bsky.feed.getLikes({
+      uri,
+      limit: 1,
+      cursor: undefined,
+    });
+
+    return likes.likes.some((like) => like.actor.did === agent.session?.did);
+  } catch (error) {
+    console.error("Error checking like status:", error);
+    return false;
+  }
+}
+
 // Initialize the agent with the stored session data if it exists
 (async () => {
   const tokenData = await getStoredToken();

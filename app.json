@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Constellation",
-    "slug": "constellation",
+    "name": "Constel",
+    "slug": "constel",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -30,8 +30,8 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "resizeMode": "cover",
+          "backgroundColor": "#203655"
         }
       ]
     ],

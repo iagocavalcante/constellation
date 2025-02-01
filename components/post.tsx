@@ -1,8 +1,28 @@
-import React from "react";
-import { View, Image, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { Icon } from "./icon";
+import {
+  isPostLikedByUser,
+  likePost,
+  unlikePost,
+} from "@/services/bsky.service";
+import Animated, {
+  useAnimatedStyle,
+  withSpring,
+  withSequence,
+  useSharedValue,
+} from "react-native-reanimated";
 
 interface PostProps {
+  uri: string;
+  cid: string;
   imageUrl?: string;
   username: string;
   displayName?: string;
@@ -14,6 +34,8 @@ interface PostProps {
 }
 
 const Post = ({
+  uri,
+  cid,
   imageUrl,
   username,
   displayName,
@@ -22,66 +44,138 @@ const Post = ({
   comments,
   likedByAvatars = [],
   likedByNames = [],
-}: PostProps) => (
-  <View style={styles.container}>
-    <View style={styles.card}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.userInfo}>
-          <Image source={{ uri: avatar }} style={styles.avatar} />
-          <View>
-            <Text style={styles.username}>{username}</Text>
-            <Text style={styles.location}>{displayName}</Text>
+}: PostProps) => {
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(likes);
+  const [lastTap, setLastTap] = useState(0);
+  const DOUBLE_TAP_DELAY = 300;
+
+  useEffect(() => {
+    const checkLikeStatus = async () => {
+      const liked = await isPostLikedByUser(uri);
+      setIsLiked(liked);
+    };
+    checkLikeStatus();
+  }, [uri]);
+
+  const heartScale = useSharedValue(0);
+
+  const heartStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: heartScale.value }],
+    opacity: heartScale.value,
+  }));
+
+  const handleDoubleTap = async () => {
+    const now = Date.now();
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      if (!isLiked) {
+        // Animate heart
+        heartScale.value = withSequence(
+          withSpring(1, { damping: 5, stiffness: 400 }),
+          withSpring(0, { damping: 5, stiffness: 400 }, () => {
+            heartScale.value = 0;
+          }),
+        );
+
+        const success = await likePost(uri, cid);
+        if (success) {
+          setIsLiked(true);
+          setLikesCount((prev) => prev + 1);
+        }
+      }
+    }
+    setLastTap(now);
+  };
+
+  const handleLikePress = async () => {
+    if (isLiked) {
+      const success = await unlikePost(uri);
+      if (success) {
+        setIsLiked(false);
+        setLikesCount((prev) => prev - 1);
+      }
+    } else {
+      const success = await likePost(uri, cid);
+      if (success) {
+        setIsLiked(true);
+        setLikesCount((prev) => prev + 1);
+      }
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.card}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.userInfo}>
+            <Image source={{ uri: avatar }} style={styles.avatar} />
+            <View>
+              <Text style={styles.username}>{username}</Text>
+              <Text style={styles.location}>{displayName}</Text>
+            </View>
+          </View>
+          <TouchableOpacity>
+            <Text style={styles.moreOptions}>•••</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Main Image with double tap */}
+        <TouchableWithoutFeedback onPress={handleDoubleTap}>
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: imageUrl }} style={styles.mainImage} />
+            <Animated.View style={[styles.heartOverlay, heartStyle]}>
+              <Icon name="heart" size={80} color="#fff" filled />
+            </Animated.View>
+          </View>
+        </TouchableWithoutFeedback>
+
+        {/* Engagement Stats */}
+        <View style={styles.statsContainer}>
+          <TouchableOpacity style={styles.stat} onPress={handleLikePress}>
+            <Icon
+              name="heart"
+              filled={isLiked}
+              size={20}
+              color={isLiked ? "#E31B23" : "#000"}
+            />
+            <Text style={styles.statText}>{likesCount}</Text>
+          </TouchableOpacity>
+          <View style={styles.stat}>
+            <Icon name="comment" size={20} color="#000" />
+            <Text style={styles.statText}>{comments}</Text>
+          </View>
+          <View style={styles.stat}>
+            <Icon name="send" size={20} color="#000" />
+          </View>
+          <View style={styles.rightStat}>
+            <Icon name="bookmark" size={20} color="#000" />
           </View>
         </View>
-        <TouchableOpacity>
-          <Text style={styles.moreOptions}>•••</Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* Main Image */}
-      <Image source={{ uri: imageUrl }} style={styles.mainImage} />
-
-      {/* Engagement Stats */}
-      <View style={styles.statsContainer}>
-        <View style={styles.stat}>
-          <Icon name="heart" filled size={20} fill="#000" color="#000" />
-          <Text style={styles.statText}>{likes}</Text>
+        {/* Liked By Section */}
+        <View style={styles.likedBySection}>
+          <View style={styles.likedByAvatars}>
+            {likedByAvatars.slice(0, 3).map((avatarUrl, index) => (
+              <Image
+                key={index}
+                source={{ uri: avatarUrl }}
+                style={[
+                  styles.likedByAvatar,
+                  { marginLeft: index > 0 ? -10 : 0 },
+                ]}
+              />
+            ))}
+          </View>
+          <Text style={styles.likedByText}>{likedByNames.join(", ")}...</Text>
+          <TouchableOpacity>
+            <Text style={styles.moreButton}>More</Text>
+          </TouchableOpacity>
         </View>
-        <View style={styles.stat}>
-          <Icon name="comment" size={20} fill="#000" color="#000" />
-          <Text style={styles.statText}>{comments}</Text>
-        </View>
-        <View style={styles.stat}>
-          <Icon name="send" size={20} fill="#000" color="#000" />
-        </View>
-        <View style={styles.rightStat}>
-          <Icon name="bookmark" size={20} fill="#000" color="#000" />
-        </View>
-      </View>
-
-      {/* Liked By Section */}
-      <View style={styles.likedBySection}>
-        <View style={styles.likedByAvatars}>
-          {likedByAvatars.slice(0, 3).map((avatarUrl, index) => (
-            <Image
-              key={index}
-              source={{ uri: avatarUrl }}
-              style={[
-                styles.likedByAvatar,
-                { marginLeft: index > 0 ? -10 : 0 },
-              ]}
-            />
-          ))}
-        </View>
-        <Text style={styles.likedByText}>{likedByNames.join(", ")}...</Text>
-        <TouchableOpacity>
-          <Text style={styles.moreButton}>More</Text>
-        </TouchableOpacity>
       </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -180,6 +274,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
+  },
+  imageContainer: {
+    position: "relative",
+    width: "100%",
+    aspectRatio: 1,
+  },
+  heartOverlay: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -40 }, { translateY: -40 }],
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

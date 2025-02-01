@@ -122,6 +122,8 @@ export default function SearchScreen() {
           data={posts}
           renderItem={({ item }) => (
             <Post
+              uri={item.uri}
+              cid={item.cid}
               username={item.author.handle}
               displayName={item.author.displayName}
               avatar={item.author.avatar}

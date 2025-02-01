@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'Constellation'
+rootProject.name = 'Constel'
 
 dependencyResolutionManagement {
   versionCatalogs {
