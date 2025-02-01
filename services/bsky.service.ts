@@ -21,6 +21,56 @@ const agent = new AtpAgent({
   },
 });
 
+export interface SearchParams {
+  q?: string;
+  sort?: "top" | "latest";
+  since?: string;
+  until?: string;
+  mentions?: string;
+  author?: string;
+  lang?: string;
+  domain?: string;
+  url?: string;
+  tags?: string[];
+  limit?: number;
+  cursor?: string;
+}
+
+interface RawBskyPost {
+  uri: string;
+  cid: string;
+  author: {
+    did: string;
+    handle: string;
+    displayName?: string;
+    avatar?: string;
+  };
+  record: {
+    text: string;
+    embed?: {
+      $type: string;
+      images?: {
+        image: {
+          ref: { $link: string };
+          mimeType: string;
+        };
+        alt?: string;
+      }[];
+    };
+  };
+  embed?: {
+    $type: string;
+    images?: {
+      thumb: string;
+      fullsize: string;
+      alt: string;
+      aspectRatio: { height: number; width: number };
+    }[];
+  };
+  indexedAt: string;
+  likeCount: number;
+}
+
 export interface BskyPost {
   uri: string;
   cid: string;
@@ -225,6 +275,34 @@ export const loginToBsky = async (identifier: string, password: string) => {
   }
 };
 
+export function formatPosts(posts: RawBskyPost[]): BskyPost[] {
+  return posts
+    .filter((post) => {
+      // Filter only posts with images
+      return (
+        post.embed?.$type === "app.bsky.embed.images#view" &&
+        post.embed?.images?.length > 0
+      );
+    })
+    .map((post) => ({
+      uri: post.uri,
+      cid: post.cid,
+      author: {
+        did: post.author.did,
+        handle: post.author.handle,
+        displayName: post.author.displayName,
+        avatar: post.author.avatar,
+      },
+      record: {
+        text: post.record.text,
+        embed: post.record.embed,
+      },
+      embed: post.embed!,
+      likeCount: post.likeCount || 0,
+      indexedAt: post.indexedAt,
+    }));
+}
+
 export async function getAuthenticatedAgent() {
   const tokenData = await getValidToken();
   if (!tokenData) {
@@ -263,52 +341,17 @@ export async function logout() {
 
 export async function fetchPosts(limit: number = 50) {
   try {
-    console.log("agent.accountDid => ", agent.assertDid);
-
     if (!agent.assertDid) {
       throw new Error("Not authenticated");
     }
 
-    // Fetch both timelines using the correct API methods
     const timelineResponse = await agent.getTimeline({ limit: limit * 2 });
-    // agent.app.bsky.feed.getTimeline({ limit: limit * 2 }), // Using feed.getTimeline for discover
 
-    console.log(
-      "timelineResponse => ",
-      JSON.stringify(timelineResponse, null, 2),
+    const formattedPosts = formatPosts(
+      timelineResponse.data.feed.map((item) => item.post),
     );
 
-    // Helper function to filter and format posts
-    const formatPosts = (posts: any[]): BskyPost[] => {
-      return posts
-        .filter((item) => {
-          return (
-            item.post.embed?.$type === "app.bsky.embed.images#view" &&
-            item.post.embed?.images?.length > 0
-          );
-        })
-        .map((item) => ({
-          uri: item.post.uri,
-          cid: item.post.cid,
-          author: {
-            did: item.post.author.did,
-            handle: item.post.author.handle,
-            displayName: item.post.author.displayName,
-            avatar: item.post.author.avatar,
-          },
-          record: {
-            text: item.post.record.text,
-            embed: item.post.record.embed,
-          },
-          embed: item.post.embed,
-          likeCount: item.post.likeCount || 0,
-          indexedAt: item.post.indexedAt,
-        }));
-    };
-
-    const timelinePosts = formatPosts(timelineResponse.data.feed);
-
-    return [...timelinePosts]
+    return formattedPosts
       .sort(
         (a, b) =>
           new Date(b.indexedAt).getTime() - new Date(a.indexedAt).getTime(),
@@ -390,6 +433,34 @@ export async function createPost(text: string, image?: string) {
   } catch (error) {
     console.error("Error creating post:", error);
     return null;
+  }
+}
+
+export async function searchPosts(params: SearchParams) {
+  try {
+    if (!agent.assertDid) {
+      throw new Error("Not authenticated");
+    }
+
+    const response = await agent.app.bsky.feed.searchPosts({
+      q: params.q || "",
+      limit: params.limit || 25,
+      cursor: params.cursor,
+      sort: params.sort || "latest",
+    });
+
+    const formattedPosts = formatPosts(response.data.posts);
+
+    return {
+      posts: formattedPosts,
+      cursor: response.data.cursor,
+    };
+  } catch (error) {
+    console.error("Error searching posts:", error);
+    return {
+      posts: [],
+      cursor: undefined,
+    };
   }
 }
 
