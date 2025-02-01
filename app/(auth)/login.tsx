@@ -72,7 +72,7 @@ export default function Login() {
         >
           <View style={styles.card}>
             <View style={styles.header}>
-              <Text style={styles.title}>Constellation</Text>
+              <Text style={styles.title}>Constel</Text>
               <Text style={styles.subtitle}>
                 Your decentralized photo sharing experience
               </Text>
@@ -177,12 +177,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
+    fontFamily: "Mulish_700Bold",
     fontSize: 28,
     fontWeight: "bold",
     color: "#212121",
     marginBottom: 8,
   },
   subtitle: {
+    fontFamily: "Mulish_600SemiBold",
     fontSize: 14,
     color: "#666",
   },
@@ -190,6 +192,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   input: {
+    fontFamily: "Mulish_400Regular",
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderWidth: 1,
     borderColor: "#e2e2e2",
@@ -208,6 +211,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonText: {
+    fontFamily: "Mulish_700Bold",
     color: "white",
     fontSize: 16,
     fontWeight: "600",
@@ -222,10 +226,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   footerText: {
+    fontFamily: "Mulish_400Regular",
     fontSize: 14,
     color: "#666",
   },
   signupText: {
+    fontFamily: "Mulish_600SemiBold",
     fontSize: 14,
     color: "#8B5CF6",
     fontWeight: "600",
@@ -234,10 +240,12 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   forgotPasswordText: {
+    fontFamily: "Mulish_600SemiBold",
     fontSize: 14,
     color: "#666",
   },
   errorText: {
+    fontFamily: "Mulish_600SemiBold",
     color: "#dc2626",
     fontSize: 14,
     textAlign: "center",

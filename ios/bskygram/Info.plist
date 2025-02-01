@@ -27,8 +27,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>myapp</string>
-          <string>com.iago-cavalcante.constellation</string>
+          <string>constellation</string>
+          <string>com.iagocavalcante.constellation</string>
         </array>
       </dict>
     </array>
