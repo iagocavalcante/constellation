@@ -15,3 +15,8 @@ think in start our own PDS just to serve this app.
 - [ ] Comment a post
 - [ ] Follow a user
 - [x] See the feed
+
+
+
+https://github.com/user-attachments/assets/f713bae4-7301-4ef4-9dc2-c7373af727d9
+
