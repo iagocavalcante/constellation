@@ -1,7 +1,7 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import Icon from "./icon";
+import { Icon } from "./icon";
 
 const CustomTabBar = ({ state, navigation }) => {
   const windowWidth = Dimensions.get("window").width;
@@ -36,6 +36,7 @@ const CustomTabBar = ({ state, navigation }) => {
             name="heart"
             color={focused ? "#000000" : "#878D98"}
             size={27}
+            strokeWidth={1.5}
           />
         );
       case "profile":
@@ -43,7 +44,7 @@ const CustomTabBar = ({ state, navigation }) => {
           <Icon
             name="profile"
             color={focused ? "#000000" : "#878D98"}
-            size={24}
+            size={22}
             strokeWidth={2}
           />
         );
@@ -78,7 +79,7 @@ const CustomTabBar = ({ state, navigation }) => {
 
       {/* Tab bar content */}
       <View style={styles.tabBarContent}>
-        {state.routes.map((route, index) => {
+        {state.routes.map((route: any, index: number) => {
           const isFocused = state.index === index;
 
           return (

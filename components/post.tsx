@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Heart, MessageCircle, Send, Bookmark } from "lucide-react-native";
+import { Icon } from "./icon";
 
 interface PostProps {
   imageUrl?: string;
@@ -45,18 +45,18 @@ const Post = ({
       {/* Engagement Stats */}
       <View style={styles.statsContainer}>
         <View style={styles.stat}>
-          <Heart size={20} color="#000" />
+          <Icon name="heart" filled size={20} fill="#000" color="#000" />
           <Text style={styles.statText}>{likes}</Text>
         </View>
         <View style={styles.stat}>
-          <MessageCircle size={20} color="#000" />
+          <Icon name="comment" size={20} fill="#000" color="#000" />
           <Text style={styles.statText}>{comments}</Text>
         </View>
         <View style={styles.stat}>
-          <Send size={20} color="#000" />
+          <Icon name="send" size={20} fill="#000" color="#000" />
         </View>
         <View style={styles.rightStat}>
-          <Bookmark size={20} color="#000" />
+          <Icon name="bookmark" size={20} fill="#000" color="#000" />
         </View>
       </View>
 
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
+    fontFamily: "Mulish_400Regular",
   },
   avatar: {
     width: 40,

@@ -1,5 +1,5 @@
 import React from "react";
-import icons from "@/icons";
+import { icons } from "@/icons";
 
 interface IconProps {
   name: string;
@@ -9,7 +9,13 @@ interface IconProps {
   [key: string]: any;
 }
 
-const Icon: React.FC<IconProps> = ({ name, color, size, fill, ...props }) => {
+export const Icon: React.FC<IconProps> = ({
+  name,
+  color,
+  size,
+  fill,
+  ...props
+}) => {
   const IconComponent = icons[name];
 
   if (!IconComponent) {
@@ -19,5 +25,3 @@ const Icon: React.FC<IconProps> = ({ name, color, size, fill, ...props }) => {
 
   return <IconComponent color={color} size={size} fill={fill} {...props} />;
 };
-
-export default Icon;

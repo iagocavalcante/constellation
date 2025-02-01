@@ -1,15 +1,23 @@
-import { Search } from "./search";
 import { Home } from "./home";
 import { Add } from "./add";
-import { Heart } from "./heart";
 import { Profile } from "./profile";
+import { Send } from "./send";
+import { Bookmark } from "./bookmark";
+import { Comment } from "./comment";
+import { Message } from "./message";
+import { Heart } from "./heart";
+import { Search } from "./search";
 
-const icons = {
+export const icons = {
   home: Home,
-  search: Search,
   add: Add,
   heart: Heart,
   profile: Profile,
+  send: Send,
+  bookmark: Bookmark,
+  search: Search,
+  comment: Comment,
+  message: Message,
 };
 
-export default icons;
+export type IconName = keyof typeof icons;

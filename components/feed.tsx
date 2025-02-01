@@ -15,21 +15,16 @@ import Post from "./post";
 import { fetchPosts, getImageUrl, BskyPost } from "../services/bsky.service";
 import { useAuthStore } from "../stores/auth.store";
 import { useRouter } from "expo-router";
+import { Icon } from "./icon";
 
 const Header = () => (
   <View style={styles.header}>
     <TouchableOpacity>
-      <Image
-        source={{ uri: "https://v0.dev/placeholder.svg?height=24&width=24" }}
-        style={styles.icon}
-      />
+      <Icon name="add" />
     </TouchableOpacity>
     <Text style={styles.logoText}>Constellation</Text>
     <TouchableOpacity>
-      <Image
-        source={{ uri: "https://v0.dev/placeholder.svg?height=24&width=24" }}
-        style={styles.icon}
-      />
+      <Icon name="message" />
     </TouchableOpacity>
   </View>
 );
@@ -134,7 +129,7 @@ export const Feed = () => {
         ListHeaderComponent={() => (
           <>
             <Header />
-            <Stories />
+            {/* <Stories /> */}
           </>
         )}
       />
@@ -154,7 +149,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 24,
-    fontFamily: "serif",
+    fontFamily: "Mulish_700Bold",
   },
   icon: {
     width: 24,
