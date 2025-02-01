@@ -72,7 +72,7 @@ export default function Login() {
         >
           <View style={styles.card}>
             <View style={styles.header}>
-              <Text style={styles.title}>bsky-gram</Text>
+              <Text style={styles.title}>Constellation</Text>
               <Text style={styles.subtitle}>
                 Your decentralized photo sharing experience
               </Text>

@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "bsky-gram",
-    "slug": "bsky-gram",
+    "name": "Constellation",
+    "slug": "constellation",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "constellation",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.iago-cavalcante.bsky-gram"
+      "bundleIdentifier": "com.iagocavalcante.constellation"
     },
     "android": {
       "adaptiveIcon": {

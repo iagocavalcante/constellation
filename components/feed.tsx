@@ -7,27 +7,33 @@ import {
   ActivityIndicator,
 } from "react-native";
 import Post from "./post";
-import { fetchTimeline, BskyPost } from "../services/bsky.service";
-
-interface PostData {
-  id: string;
-  imageUrl: string;
-  username: string;
-  caption: string;
-  likes: number;
-}
+import { fetchPosts, getImageUrl, BskyPost } from "../services/bsky.service";
+import { useAuthStore } from "../stores/auth.store";
+import { useRouter } from "expo-router";
 
 export const Feed = () => {
   const [posts, setPosts] = useState<BskyPost[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const router = useRouter();
 
   const loadPosts = async () => {
     try {
-      const timelinePosts = await fetchTimeline();
-      setPosts(timelinePosts);
+      if (!isAuthenticated) {
+        router.replace("/login");
+        return;
+      }
+      const fetchedPosts = await fetchPosts();
+      setPosts(fetchedPosts);
     } catch (error) {
       console.error("Error loading posts:", error);
+      if (
+        error instanceof Error &&
+        error.message.includes("Not authenticated")
+      ) {
+        router.replace("/login");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,18 +68,15 @@ export const Feed = () => {
         <Post
           username={item.author.handle}
           displayName={item.author.displayName}
-          avatarUrl={item.author.avatar}
-          imageUrl={
-            item.record.embed?.images?.[0]?.image?.ref?.$link
-              ? `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${item.author.did}&cid=${item.record.embed.images[0].image.ref.$link}`
-              : undefined
-          }
+          avatar={item.author.avatar}
+          imageUrl={getImageUrl(item)}
           caption={item.record.text}
           likes={item.likeCount}
-          timestamp={new Date(item.indexedAt)}
         />
       )}
-      keyExtractor={(item) => item.uri}
+      keyExtractor={(item) =>
+        item.uri + item.cid + Math.random().toString(36).substring(7)
+      }
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }

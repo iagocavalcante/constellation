@@ -16,7 +16,7 @@ export default function MainLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Bsky-gram",
+          title: "Constellation",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
@@ -30,6 +30,19 @@ export default function MainLayout() {
         name="new-post"
         options={{
           title: "New Post",
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? "add-circle" : "add-circle-outline"}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="logout"
+        options={{
+          title: "Logout",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? "add-circle" : "add-circle-outline"}
