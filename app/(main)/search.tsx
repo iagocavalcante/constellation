@@ -1,7 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import { Feed } from "@/components/feed";
 
-export default function Search() {
+export default function Profile() {
   return (
     <View style={styles.container}>
       <Feed />
@@ -11,7 +11,6 @@ export default function Search() {
 
 const styles = StyleSheet.create({
   container: {
-    fontFamily: "Mulish_400Regular",
     flex: 1,
     backgroundColor: "#fff",
   },

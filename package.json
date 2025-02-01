@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.13.31",
+    "@expo-google-fonts/mulish": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/bottom-tabs": "^7.2.0",
@@ -38,17 +39,18 @@
     "moment": "^2.30.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-iconly": "^2.2.10",
     "react-native": "0.76.6",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-image-resizer": "^1.4.5",
     "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
+    "react-native-svg": "15.8.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
     "sonner": "^1.7.3",
-    "zustand": "^5.0.3",
-    "react-native-svg": "15.8.0"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

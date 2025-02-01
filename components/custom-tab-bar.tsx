@@ -1,25 +1,61 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import Svg, { Path } from "react-native-svg";
+import Icon from "./icon";
 
 const CustomTabBar = ({ state, navigation }) => {
   const windowWidth = Dimensions.get("window").width;
 
-  const getIconName = (routeName, focused) => {
+  const getIconComponent = (routeName, focused) => {
     switch (routeName) {
       case "index":
-        return focused ? "home" : "home-outline";
+        return (
+          <Icon
+            name="home"
+            color={focused ? "#000000" : "#878D98"}
+            size={24}
+            strokeWidth={2}
+          />
+        );
       case "search":
-        return focused ? "search" : "search-outline";
+        return (
+          <Icon
+            name="search"
+            color={focused ? "#000000" : "#878D98"}
+            size={24}
+            strokeWidth={2}
+          />
+        );
       case "new-post":
-        return focused ? "add-circle" : "add-circle-outline";
+        return (
+          <Icon name="add" color={focused ? "#000000" : "#878D98"} size={27} />
+        );
       case "activity":
-        return focused ? "heart" : "heart-outline";
+        return (
+          <Icon
+            name="heart"
+            color={focused ? "#000000" : "#878D98"}
+            size={27}
+          />
+        );
       case "profile":
-        return focused ? "person-circle" : "person-circle-outline";
+        return (
+          <Icon
+            name="profile"
+            color={focused ? "#000000" : "#878D98"}
+            size={24}
+            strokeWidth={2}
+          />
+        );
       default:
-        return "home-outline";
+        return (
+          <Icon
+            name="home"
+            color={focused ? "#000000" : "#878D98"}
+            size={24}
+            strokeWidth={2}
+          />
+        );
     }
   };
 
@@ -51,11 +87,7 @@ const CustomTabBar = ({ state, navigation }) => {
               style={styles.tabItem}
               onPress={() => navigation.navigate(route.name)}
             >
-              <Ionicons
-                name={getIconName(route.name, isFocused)}
-                size={24}
-                color="black"
-              />
+              {getIconComponent(route.name, isFocused)}
             </TouchableOpacity>
           );
         })}
