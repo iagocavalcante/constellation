@@ -9,7 +9,9 @@ think in start our own PDS just to serve this app.
 
 - [x] Login with your BlueSky account
 - [x] Create a new post
-- [ ] Like a post
+  - [ ] using the camera to take a picture
+  - [ ] using RichText from atproto to deal with the post content
+- [x] Like/Unlike a post
 - [ ] Comment a post
 - [ ] Follow a user
 - [x] See the feed
