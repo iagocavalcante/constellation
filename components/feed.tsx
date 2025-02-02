@@ -22,7 +22,7 @@ const Header = () => (
     <TouchableOpacity>
       <Icon name="add" />
     </TouchableOpacity>
-    <Text style={styles.logoText}>Constellation</Text>
+    <Text style={styles.logoText}>Constel</Text>
     <TouchableOpacity>
       <Icon name="message" />
     </TouchableOpacity>

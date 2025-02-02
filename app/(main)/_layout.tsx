@@ -1,45 +1,24 @@
 import { Tabs } from "expo-router";
-import CustomTabBar from "@/components/custom-tab-bar";
+import CustomTabBar from "../../components/custom-tab-bar";
+import { useGlobalSearchParams } from "expo-router";
 
-export default function MainLayout() {
+export default function TabLayout() {
+  const { showCamera } = useGlobalSearchParams();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
       }}
-      tabBar={(props) => <CustomTabBar {...props} />}
+      tabBar={(props) =>
+        showCamera === "true" ? null : <CustomTabBar {...props} />
+      }
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-        }}
-      />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: "Search",
-        }}
-      />
-      <Tabs.Screen
-        name="new-post"
-        options={{
-          title: "Create",
-        }}
-      />
-      <Tabs.Screen
-        name="activity"
-        options={{
-          title: "Activity",
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-        }}
-      />
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="search" />
+      <Tabs.Screen name="new-post" />
+      <Tabs.Screen name="activity" />
+      <Tabs.Screen name="profile" />
     </Tabs>
   );
 }
