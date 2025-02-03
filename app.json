@@ -25,7 +25,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "root": "./src/screens"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -41,7 +46,8 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
-      ]
+      ],
+      "sentry-expo"
     ],
     "experiments": {
       "typedRoutes": true
