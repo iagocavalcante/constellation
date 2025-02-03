@@ -54,7 +54,7 @@ This document outlines an initial approach to implementing a Stories feature sim
 
 ```mermaid
 graph TD
-  subgraph Mobile App (React Native Expo)
+  subgraph Mobile App
     A[User Interface] -->|Fetch Stories| B[Local Storage]
     A -->|Upload Video| C[Bluesky API]
     A -->|Check Upload Limits| D[Bluesky API]
