@@ -74,6 +74,29 @@ graph TD
   end
 ```
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant App
+    participant Server
+    participant BackgroundJob
+
+    User->>App: Choose Image/Video
+    User->>App: Add Story Details
+    App->>Server: Upload Blob (Video/Image)
+    Server-->>App: Confirm Upload
+    App->>App: Display Story in Profile
+    User->>App: Request Edit Story
+    App->>App: Update Story Details
+    App->>BackgroundJob: Send for Processing (Consult Job)
+    BackgroundJob-->>App: Processing Complete
+    Note over App: Schedule Auto-Delete in 24h
+    loop Every 24h
+        App->>App: Check Story Age
+        App->>Server: Delete Expired Story
+    end
+```
+
 ---
 
 ## Next Steps
