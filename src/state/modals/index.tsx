@@ -117,6 +117,13 @@ export interface InAppBrowserConsentModal {
   href: string;
 }
 
+export interface ReportPostModal {
+  name: "report-post";
+  uri: string;
+  cid: string;
+  authorDid: string;
+}
+
 export type Modal =
   // Account
   | AddAppPasswordModal
@@ -148,7 +155,10 @@ export type Modal =
 
   // Generic
   | LinkWarningModal
-  | InAppBrowserConsentModal;
+  | InAppBrowserConsentModal
+
+  // Moderation
+  | ReportPostModal;
 
 const ModalContext = React.createContext<{
   isModalActive: boolean;

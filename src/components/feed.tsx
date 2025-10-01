@@ -62,14 +62,16 @@ const Stories = () => (
 export const Feed = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [posts, setPosts] = useState<PostView[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
   const agent = useAgent();
 
   const loadPosts = async () => {
     try {
-      const fetchedPosts = await fetchPosts(agent);
+      const { posts: fetchedPosts, cursor: newCursor } = await fetchPosts(agent);
       setPosts(fetchedPosts);
+      setCursor(newCursor);
     } catch (error) {
       console.error("Error loading posts:", error);
     } finally {
@@ -78,17 +80,17 @@ export const Feed = () => {
   };
 
   const loadMore = async () => {
-    if (loading || !cursor) return;
+    if (loadingMore || !cursor) return;
 
-    setLoading(true);
+    setLoadingMore(true);
     try {
-      const response = await fetchPosts(agent, 25, cursor);
-      setPosts((prev) => [...prev, ...response.posts]);
-      setCursor(response.cursor);
+      const { posts: newPosts, cursor: newCursor } = await fetchPosts(agent, 25, cursor);
+      setPosts((prev) => [...prev, ...newPosts]);
+      setCursor(newCursor);
     } catch (error) {
       console.error("Load more error:", error);
     } finally {
-      setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -126,8 +128,9 @@ export const Feed = () => {
             uri={item.uri}
             cid={item.cid}
             imageUrl={getImageUrl(item)}
-            caption={item.record.text}
             likes={item.likeCount as number}
+            comments="0"
+            authorDid={item.author.did}
           />
         )}
         keyExtractor={(item) =>
@@ -139,7 +142,7 @@ export const Feed = () => {
         onEndReached={loadMore}
         onEndReachedThreshold={0.3}
         ListFooterComponent={
-          loading ? (
+          loadingMore ? (
             <ActivityIndicator style={styles.loader} color="#8B5CF6" />
           ) : null
         }

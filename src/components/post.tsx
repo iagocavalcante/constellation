@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import { Icon } from "./icon";
 import {
@@ -20,6 +21,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { useAgent } from "@/state/session";
+import { useModalControls } from "@/state/modals";
 
 interface PostProps {
   uri: string;
@@ -32,6 +34,7 @@ interface PostProps {
   comments: string;
   likedByAvatars?: string[];
   likedByNames?: string[];
+  authorDid: string;
 }
 
 const Post = ({
@@ -45,12 +48,14 @@ const Post = ({
   comments,
   likedByAvatars = [],
   likedByNames = [],
+  authorDid,
 }: PostProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(likes);
   const [lastTap, setLastTap] = useState(0);
   const DOUBLE_TAP_DELAY = 300;
   const agent = useAgent();
+  const { openModal } = useModalControls();
 
   useEffect(() => {
     const checkLikeStatus = async () => {
@@ -105,6 +110,31 @@ const Post = ({
     }
   };
 
+  const handleOptionsPress = () => {
+    Alert.alert(
+      "Post Options",
+      "What would you like to do?",
+      [
+        {
+          text: "Report Post",
+          onPress: () => {
+            openModal({
+              name: "report-post",
+              uri,
+              cid,
+              authorDid,
+            });
+          },
+          style: "destructive",
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
@@ -117,7 +147,7 @@ const Post = ({
               <Text style={styles.location}>{displayName}</Text>
             </View>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleOptionsPress}>
             <Text style={styles.moreOptions}>•••</Text>
           </TouchableOpacity>
         </View>

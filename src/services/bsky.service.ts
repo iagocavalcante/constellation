@@ -125,15 +125,21 @@ export async function fetchPosts(
       timelineResponse.data.feed.map((item) => item.post),
     );
 
-    return formattedPosts
-      .sort(
-        (a, b) =>
-          new Date(b.indexedAt).getTime() - new Date(a.indexedAt).getTime(),
-      )
-      .slice(0, limit);
+    return {
+      posts: formattedPosts
+        .sort(
+          (a, b) =>
+            new Date(b.indexedAt).getTime() - new Date(a.indexedAt).getTime(),
+        )
+        .slice(0, limit),
+      cursor: timelineResponse.data.cursor,
+    };
   } catch (error) {
     console.error("Error fetching posts:", error);
-    return [];
+    return {
+      posts: [],
+      cursor: undefined,
+    };
   }
 }
 
@@ -298,5 +304,74 @@ export async function isPostLikedByUser(
   } catch (error) {
     console.error("Error checking like status:", error);
     return false;
+  }
+}
+
+export interface ReportParams {
+  reasonType: string;
+  subject: {
+    $type: "com.atproto.repo.strongRef";
+    uri: string;
+    cid: string;
+  };
+}
+
+// Function to report a post
+export async function reportPost(
+  agent: AtpAgent,
+  params: ReportParams,
+): Promise<boolean> {
+  try {
+    await agent.api.com.atproto.moderation.createReport({
+      reasonType: params.reasonType,
+      subject: params.subject,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Error reporting post:", error);
+    return false;
+  }
+}
+
+// Function to fetch user profile
+export async function fetchUserProfile(agent: AtpAgent, did: string) {
+  try {
+    const response = await agent.getProfile({ actor: did });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    return null;
+  }
+}
+
+// Function to fetch user's posts (author feed)
+export async function fetchUserPosts(
+  agent: AtpAgent,
+  did: string,
+  limit: number = 30,
+  cursor?: string,
+) {
+  try {
+    const response = await agent.getAuthorFeed({
+      actor: did,
+      limit: limit * 2, // Fetch more to filter for images
+      cursor,
+    });
+
+    const formattedPosts = formatPosts(
+      response.data.feed.map((item) => item.post),
+    );
+
+    return {
+      posts: formattedPosts.slice(0, limit),
+      cursor: response.data.cursor,
+    };
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    return {
+      posts: [],
+      cursor: undefined,
+    };
   }
 }

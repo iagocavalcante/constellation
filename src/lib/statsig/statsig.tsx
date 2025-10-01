@@ -18,7 +18,7 @@ import { LogEvents } from "./events";
 import { Gate } from "./gates";
 import { STATSIG_KEY } from "@/env";
 
-export const SDK_KEY = "";
+export const SDK_KEY = STATSIG_KEY;
 
 type StatsigUser = {
   userID: string | undefined;
@@ -219,20 +219,20 @@ export async function tryFetchGates(
   did: string | undefined,
   strategy: "prefer-low-latency" | "prefer-fresh-gates",
 ) {
-  const { client } = useStatsigClient();
   try {
+    if (!statsigClientInstance) {
+      return; // Not initialized yet, skip
+    }
+    
     let timeoutMs = 250; // Don't block the UI if we can't do this fast.
     if (strategy === "prefer-fresh-gates") {
       // Use this for less common operations where the user would be OK with a delay.
       timeoutMs = 1500;
     }
-    // Note: This condition is currently false the very first render because
-    // Statsig has not initialized yet. In the future, we can fix this by
-    // doing the initialization ourselves instead of relying on the provider.
 
     await Promise.race([
       timeout(timeoutMs),
-      client.dataAdapter.prefetchData(toStatsigUser(did)),
+      statsigClientInstance.dataAdapter.prefetchData(toStatsigUser(did)),
     ]);
   } catch (e) {
     // Don't leak errors to the calling code, this is meant to be always safe.
@@ -247,8 +247,9 @@ export async function initialize() {
     return statsigClientInstance;
   }
 
-  statsigClientInstance = new StatsigClientExpo(SDK_KEY as string, {});
-  await statsigClientInstance.initializeAsync();
+  // Temporarily disabled due to AsyncStorage format errors
+  // statsigClientInstance = new StatsigClientExpo(SDK_KEY as string, {});
+  // await statsigClientInstance.initializeAsync();
   return statsigClientInstance;
 }
 
@@ -333,29 +334,32 @@ export function Provider({ children }: { children: React.ReactNode }) {
     return children; // Continue without Statsig
   }
 
-  if (!isReady || !client) {
-    return null; // or a loading indicator
-  }
+  // Temporarily disabled due to AsyncStorage format errors
+  return <GateCache.Provider value={gateCache}>{children}</GateCache.Provider>;
 
-  return (
-    <GateCache.Provider value={gateCache}>
-      <StatsigProviderExpo
-        key={did}
-        sdkKey={SDK_KEY as string}
-        user={currentStatsigUser}
-        options={{
-          environment: {
-            tier:
-              process.env.NODE_ENV === "development"
-                ? "development"
-                : IS_TESTFLIGHT
-                  ? "staging"
-                  : "production",
-          },
-        }}
-      >
-        {children}
-      </StatsigProviderExpo>
-    </GateCache.Provider>
-  );
+  // if (!isReady || !client) {
+  //   return <>{children}</>; // Render children without Statsig if not ready
+  // }
+
+  // return (
+  //   <GateCache.Provider value={gateCache}>
+  //     <StatsigProviderExpo
+  //       key={did}
+  //       sdkKey={SDK_KEY as string}
+  //       user={currentStatsigUser}
+  //       options={{
+  //         environment: {
+  //           tier:
+  //             process.env.NODE_ENV === "development"
+  //               ? "development"
+  //               : IS_TESTFLIGHT
+  //                 ? "staging"
+  //                 : "production",
+  //         },
+  //       }}
+  //     >
+  //       {children}
+  //     </StatsigProviderExpo>
+  //   </GateCache.Provider>
+  // );
 }

@@ -17,7 +17,6 @@ export default function TabLayout() {
       <Tabs.Screen name="index" />
       <Tabs.Screen name="search" />
       <Tabs.Screen name="new-post" />
-      <Tabs.Screen name="activity" />
       <Tabs.Screen name="profile" />
     </Tabs>
   );

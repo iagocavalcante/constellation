@@ -55,7 +55,7 @@ export async function createAgentAndResume(
         (e: any) => {
           logger.error(`networkRetry failed to resume session`, {
             status: e?.status || "unknown",
-            // this field name is ignored by Sentry scrubbers
+            // // this field name is ignored by Sentry scrubbers
             safeMessage: e?.message || "unknown",
           });
 

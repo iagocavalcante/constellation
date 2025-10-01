@@ -5,19 +5,26 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "constellation",
+    "scheme": "constel",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.iagocavalcante.constellation"
+      "bundleIdentifier": "com.iagocavalcante.constellation",
+      "appleTeamId": "URMS5ES2VR",
+      "buildNumber": "4"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.iagocavalcante.constellation"
+      "package": "com.iagocavalcante.constel",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "versionCode": 4
     },
     "web": {
       "bundler": "metro",
