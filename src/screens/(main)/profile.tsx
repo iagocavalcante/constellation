@@ -41,7 +41,10 @@ export default function Profile() {
   }, [currentAccount]);
 
   const loadProfile = async () => {
-    if (!currentAccount?.did) return;
+    if (!currentAccount?.did) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
