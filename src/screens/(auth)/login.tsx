@@ -14,6 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { BSKY_SERVICE } from "@/lib/constants";
 import { useSessionApi } from "@/state/session";
+import { hasAcceptedTos } from "@/lib/tos";
 
 export default function Login() {
   const [identifier, setIdentifier] = useState("");
@@ -41,7 +42,13 @@ export default function Login() {
         "LoginForm",
       );
 
-      router.replace("/(main)");
+      // Check if user has accepted ToS
+      const tosAccepted = await hasAcceptedTos();
+      if (!tosAccepted) {
+        router.replace("/(auth)/accept-terms?redirect=/(main)");
+      } else {
+        router.replace("/(main)");
+      }
     } catch (err: any) {
       console.error("Login error:", err);
 

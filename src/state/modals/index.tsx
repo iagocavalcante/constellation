@@ -124,6 +124,13 @@ export interface ReportPostModal {
   authorDid: string;
 }
 
+export interface ReportProfileModal {
+  name: "report-profile";
+  did: string;
+  handle: string;
+  displayName?: string;
+}
+
 export type Modal =
   // Account
   | AddAppPasswordModal
@@ -158,7 +165,8 @@ export type Modal =
   | InAppBrowserConsentModal
 
   // Moderation
-  | ReportPostModal;
+  | ReportPostModal
+  | ReportProfileModal;
 
 const ModalContext = React.createContext<{
   isModalActive: boolean;

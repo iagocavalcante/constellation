@@ -21,13 +21,13 @@ import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 
 const Header = () => (
   <View style={styles.header}>
-    <TouchableOpacity>
+    {/* <TouchableOpacity>
       <Icon name="add" />
-    </TouchableOpacity>
+    </TouchableOpacity> */}
     <Text style={styles.logoText}>Constel</Text>
-    <TouchableOpacity>
+    {/* <TouchableOpacity>
       <Icon name="message" />
-    </TouchableOpacity>
+    </TouchableOpacity> */}
   </View>
 );
 
@@ -160,7 +160,7 @@ export const Feed = () => {
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,

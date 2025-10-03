@@ -12,7 +12,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.iagocavalcante.constellation",
       "appleTeamId": "URMS5ES2VR",
-      "buildNumber": "4"
+      "buildNumber": "6"
     },
     "android": {
       "adaptiveIcon": {

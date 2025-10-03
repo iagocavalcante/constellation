@@ -20,7 +20,8 @@ import {
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 import { Icon } from "@/components/icon";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { useModalControls } from "@/state/modals";
 
 const { width } = Dimensions.get("window");
 const ITEM_SIZE = width / 3;
@@ -29,19 +30,25 @@ export default function Profile() {
   const agent = useAgent();
   const { currentAccount } = useSession();
   const { logoutCurrentAccount } = useSessionApi();
+  const { openModal } = useModalControls();
   const router = useRouter();
+  const params = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [profile, setProfile] = useState<ProfileView | null>(null);
   const [posts, setPosts] = useState<PostView[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
 
+  // Determine which profile to show - from params or current user
+  const profileDid = (params.did as string) || currentAccount?.did;
+  const isOwnProfile = profileDid === currentAccount?.did;
+
   useEffect(() => {
     loadProfile();
-  }, [currentAccount]);
+  }, [currentAccount, params.did]);
 
   const loadProfile = async () => {
-    if (!currentAccount?.did) {
+    if (!profileDid) {
       setLoading(false);
       return;
     }
@@ -49,8 +56,8 @@ export default function Profile() {
     try {
       setLoading(true);
       const [profileData, postsData] = await Promise.all([
-        fetchUserProfile(agent, currentAccount.did),
-        fetchUserPosts(agent, currentAccount.did),
+        fetchUserProfile(agent, profileDid),
+        fetchUserPosts(agent, profileDid),
       ]);
 
       if (profileData) setProfile(profileData);
@@ -64,13 +71,13 @@ export default function Profile() {
   };
 
   const loadMore = async () => {
-    if (loadingMore || !cursor || !currentAccount?.did) return;
+    if (loadingMore || !cursor || !profileDid) return;
 
     setLoadingMore(true);
     try {
       const { posts: newPosts, cursor: newCursor } = await fetchUserPosts(
         agent,
-        currentAccount.did,
+        profileDid,
         30,
         cursor,
       );
@@ -105,6 +112,34 @@ export default function Profile() {
     );
   };
 
+  const handleProfileMenu = () => {
+    Alert.alert(
+      "Profile Actions",
+      "What would you like to do?",
+      [
+        {
+          text: "Report Profile",
+          style: "destructive",
+          onPress: () => {
+            if (profile) {
+              openModal({
+                name: "report-profile",
+                did: profile.did,
+                handle: profile.handle,
+                displayName: profile.displayName,
+              });
+            }
+          },
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -128,9 +163,15 @@ export default function Profile() {
               <Text style={styles.username}>
                 {profile?.handle || currentAccount?.handle}
               </Text>
-              <TouchableOpacity onPress={handleSignOut} style={styles.logoutButton}>
-                <Text style={styles.logoutText}>Sign Out</Text>
-              </TouchableOpacity>
+              {isOwnProfile ? (
+                <TouchableOpacity onPress={handleSignOut} style={styles.logoutButton}>
+                  <Text style={styles.logoutText}>Sign Out</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={handleProfileMenu} style={styles.menuButton}>
+                  <Text style={styles.menuIcon}>⋯</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Profile Info */}
@@ -175,15 +216,26 @@ export default function Profile() {
               )}
             </View>
 
-            {/* Action Buttons */}
-            <View style={styles.actions}>
-              <TouchableOpacity style={styles.editButton}>
-                <Text style={styles.editButtonText}>Edit Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.shareButton}>
-                <Icon name="share" />
-              </TouchableOpacity>
-            </View>
+
+            {/* Legal Links Section (only for own profile) */}
+            {isOwnProfile && (
+              <View style={styles.legalSection}>
+                <TouchableOpacity
+                  style={styles.legalLink}
+                  onPress={() => router.push("/legal?type=terms")}
+                >
+                  <Text style={styles.legalLinkText}>Terms of Service</Text>
+                  <Text style={styles.legalLinkArrow}>›</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.legalLink}
+                  onPress={() => router.push("/legal?type=privacy")}
+                >
+                  <Text style={styles.legalLinkText}>Privacy Policy</Text>
+                  <Text style={styles.legalLinkArrow}>›</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             {/* Grid Header */}
             <View style={styles.gridHeader}>
@@ -248,6 +300,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Mulish_600SemiBold",
   },
+  menuButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  menuIcon: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#000",
+  },
   profileInfo: {
     flexDirection: "row",
     paddingHorizontal: 16,
@@ -290,30 +351,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  actions: {
-    flexDirection: "row",
+  legalSection: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
-    gap: 8,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#dbdbdb",
   },
-  editButton: {
-    flex: 1,
-    backgroundColor: "#EFEFEF",
-    paddingVertical: 8,
-    borderRadius: 8,
+  legalLink: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    paddingVertical: 12,
   },
-  editButtonText: {
+  legalLinkText: {
     fontSize: 14,
-    fontFamily: "Mulish_600SemiBold",
+    color: "#0095f6",
   },
-  shareButton: {
-    backgroundColor: "#EFEFEF",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+  legalLinkArrow: {
+    fontSize: 20,
+    color: "#999",
   },
   gridHeader: {
     flexDirection: "row",

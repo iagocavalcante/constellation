@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { hasAcceptedTos } from "@/lib/tos";
 
 const DEFAULT_DATE = new Date(Date.now() - 60e3 * 60 * 24 * 365 * 20);
 
@@ -66,7 +67,13 @@ export default function SignUp() {
           ],
         );
       } else if (result.success) {
-        router.replace("/(main)");
+        // Check if user has accepted ToS
+        const tosAccepted = await hasAcceptedTos();
+        if (!tosAccepted) {
+          router.replace("/(auth)/accept-terms?redirect=/(main)");
+        } else {
+          router.replace("/(main)");
+        }
       } else {
         setError(result.error || "Signup failed");
       }

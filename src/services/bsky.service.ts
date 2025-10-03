@@ -316,6 +316,14 @@ export interface ReportParams {
   };
 }
 
+export interface ReportProfileParams {
+  reasonType: string;
+  subject: {
+    $type: "com.atproto.admin.defs#repoRef";
+    did: string;
+  };
+}
+
 // Function to report a post
 export async function reportPost(
   agent: AtpAgent,
@@ -330,6 +338,24 @@ export async function reportPost(
     return true;
   } catch (error) {
     console.error("Error reporting post:", error);
+    return false;
+  }
+}
+
+// Function to report a profile
+export async function reportProfile(
+  agent: AtpAgent,
+  params: ReportProfileParams,
+): Promise<boolean> {
+  try {
+    await agent.api.com.atproto.moderation.createReport({
+      reasonType: params.reasonType,
+      subject: params.subject,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Error reporting profile:", error);
     return false;
   }
 }
