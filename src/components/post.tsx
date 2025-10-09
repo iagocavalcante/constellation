@@ -13,6 +13,9 @@ import {
   isPostLikedByUser,
   likePost,
   unlikePost,
+  blockUser,
+  unblockUser,
+  isUserBlocked,
 } from "@/services/bsky.service";
 import Animated, {
   useAnimatedStyle,
@@ -53,6 +56,8 @@ const Post = ({
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(likes);
   const [lastTap, setLastTap] = useState(0);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockUri, setBlockUri] = useState<string | undefined>();
   const DOUBLE_TAP_DELAY = 300;
   const agent = useAgent();
   const { openModal } = useModalControls();
@@ -62,8 +67,14 @@ const Post = ({
       const liked = await isPostLikedByUser(agent, uri);
       setIsLiked(liked);
     };
+    const checkBlockStatus = async () => {
+      const blockStatus = await isUserBlocked(agent, authorDid);
+      setIsBlocked(blockStatus.blocked);
+      setBlockUri(blockStatus.blockUri);
+    };
     checkLikeStatus();
-  }, [uri]);
+    checkBlockStatus();
+  }, [uri, authorDid]);
 
   const heartScale = useSharedValue(0);
 
@@ -110,29 +121,79 @@ const Post = ({
     }
   };
 
+  const handleBlockUser = async () => {
+    try {
+      if (isBlocked && blockUri) {
+        // Unblock user
+        const success = await unblockUser(agent, blockUri);
+        if (success) {
+          setIsBlocked(false);
+          setBlockUri(undefined);
+          Alert.alert("Success", "User unblocked successfully");
+        } else {
+          Alert.alert("Error", "Failed to unblock user");
+        }
+      } else {
+        // Block user
+        const uri = await blockUser(agent, authorDid);
+        if (uri) {
+          setIsBlocked(true);
+          setBlockUri(uri);
+          Alert.alert("Success", "User blocked successfully");
+        } else {
+          Alert.alert("Error", "Failed to block user");
+        }
+      }
+    } catch (error) {
+      console.error("Error blocking/unblocking user:", error);
+      Alert.alert("Error", "An error occurred");
+    }
+  };
+
   const handleOptionsPress = () => {
-    Alert.alert(
-      "Post Options",
-      "What would you like to do?",
-      [
-        {
-          text: "Report Post",
-          onPress: () => {
-            openModal({
-              name: "report-post",
-              uri,
-              cid,
-              authorDid,
-            });
-          },
-          style: "destructive",
+    const actions = [
+      {
+        text: isBlocked ? "Unblock User" : "Block User",
+        onPress: () => {
+          Alert.alert(
+            isBlocked ? "Unblock User" : "Block User",
+            isBlocked
+              ? "Are you sure you want to unblock this user?"
+              : "Are you sure you want to block this user? They will not be able to see your posts or interact with you.",
+            [
+              {
+                text: "Cancel",
+                style: "cancel",
+              },
+              {
+                text: isBlocked ? "Unblock" : "Block",
+                style: "destructive",
+                onPress: handleBlockUser,
+              },
+            ]
+          );
         },
-        {
-          text: "Cancel",
-          style: "cancel",
+        style: "destructive" as const,
+      },
+      {
+        text: "Report Post",
+        onPress: () => {
+          openModal({
+            name: "report-post",
+            uri,
+            cid,
+            authorDid,
+          });
         },
-      ]
-    );
+        style: "destructive" as const,
+      },
+      {
+        text: "Cancel",
+        style: "cancel" as const,
+      },
+    ];
+
+    Alert.alert("Post Options", "What would you like to do?", actions);
   };
 
   return (
@@ -147,7 +208,7 @@ const Post = ({
               <Text style={styles.location}>{displayName}</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={handleOptionsPress}>
+          <TouchableOpacity onPress={handleOptionsPress} style={styles.optionsButton}>
             <Text style={styles.moreOptions}>•••</Text>
           </TouchableOpacity>
         </View>
@@ -250,6 +311,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
+  optionsButton: {
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   moreOptions: {
     fontSize: 20,
     color: "#666",
@@ -269,6 +336,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginRight: 20,
+    minHeight: 44,
+    minWidth: 44,
+    justifyContent: "center",
   },
   rightStat: {
     marginLeft: "auto",
@@ -303,9 +373,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     backgroundColor: "#f0f0f0",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderRadius: 15,
+    minHeight: 44,
   },
   imageContainer: {
     position: "relative",

@@ -401,3 +401,129 @@ export async function fetchUserPosts(
     };
   }
 }
+
+// Function to block a user
+export async function blockUser(
+  agent: AtpAgent,
+  did: string,
+): Promise<string | null> {
+  try {
+    const { uri } = await agent.app.bsky.graph.block.create(
+      { repo: agent.session!.did },
+      {
+        subject: did,
+        createdAt: new Date().toISOString(),
+      },
+    );
+    return uri;
+  } catch (error) {
+    console.error("Error blocking user:", error);
+    return null;
+  }
+}
+
+// Function to unblock a user
+export async function unblockUser(
+  agent: AtpAgent,
+  blockUri: string,
+): Promise<boolean> {
+  try {
+    const { AtUri } = await import("@atproto/api");
+    const { rkey } = new AtUri(blockUri);
+    await agent.app.bsky.graph.block.delete({
+      repo: agent.session!.did,
+      rkey,
+    });
+    return true;
+  } catch (error) {
+    console.error("Error unblocking user:", error);
+    return false;
+  }
+}
+
+// Function to get blocked users
+export async function getBlockedUsers(
+  agent: AtpAgent,
+  limit: number = 50,
+  cursor?: string,
+) {
+  try {
+    const response = await agent.app.bsky.graph.getBlocks({
+      limit,
+      cursor,
+    });
+    return {
+      blocks: response.data.blocks,
+      cursor: response.data.cursor,
+    };
+  } catch (error) {
+    console.error("Error fetching blocked users:", error);
+    return {
+      blocks: [],
+      cursor: undefined,
+    };
+  }
+}
+
+// Function to check if a user is blocked
+export async function isUserBlocked(
+  agent: AtpAgent,
+  did: string,
+): Promise<{ blocked: boolean; blockUri?: string }> {
+  try {
+    let cursor: string | undefined;
+    let allBlocks: any[] = [];
+
+    // Fetch all blocked users (may need pagination)
+    do {
+      const { blocks, cursor: nextCursor } = await getBlockedUsers(
+        agent,
+        100,
+        cursor,
+      );
+      allBlocks = [...allBlocks, ...blocks];
+      cursor = nextCursor;
+    } while (cursor);
+
+    const blockedUser = allBlocks.find((block) => block.did === did);
+    return {
+      blocked: !!blockedUser,
+      blockUri: blockedUser?.uri,
+    };
+  } catch (error) {
+    console.error("Error checking if user is blocked:", error);
+    return { blocked: false };
+  }
+}
+
+// Function to request account deletion
+export async function requestAccountDeletion(
+  agent: AtpAgent,
+): Promise<boolean> {
+  try {
+    await agent.api.com.atproto.server.requestAccountDelete();
+    return true;
+  } catch (error) {
+    console.error("Error requesting account deletion:", error);
+    return false;
+  }
+}
+
+// Function to delete account
+export async function deleteAccount(
+  agent: AtpAgent,
+  password: string,
+  token: string,
+): Promise<boolean> {
+  try {
+    await agent.api.com.atproto.server.deleteAccount({
+      did: agent.session!.did,
+      password,
+      token,
+    });
+    return true;
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    return false;
+  }
+}

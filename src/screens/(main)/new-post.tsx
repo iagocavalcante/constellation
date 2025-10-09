@@ -333,6 +333,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
+    minHeight: 48,
+    justifyContent: "center",
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -372,11 +374,19 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 50,
     backgroundColor: "rgba(0,0,0,0.5)",
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: "center",
+    alignItems: "center",
   },
   flipButton: {
     padding: 10,
     borderRadius: 50,
     backgroundColor: "rgba(0,0,0,0.5)",
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: "center",
+    alignItems: "center",
   },
   captureButtonContainer: {
     position: "absolute",

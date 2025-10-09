@@ -255,6 +255,10 @@ const styles = StyleSheet.create({
   },
   cameraButton: {
     padding: 8,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: "center",
+    alignItems: "center",
   },
   categoriesContainer: {
     paddingHorizontal: 12,
@@ -266,10 +270,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     marginRight: 8,
     borderWidth: 1,
     borderColor: "#e0e0e0",
+    minHeight: 44,
   },
   categoryText: {
     marginLeft: 6,

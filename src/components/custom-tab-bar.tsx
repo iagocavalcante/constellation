@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "100%",
     height: 114,
+    zIndex: 999,
   },
   backgroundContainer: {
     position: "absolute",
@@ -128,6 +129,8 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: "center",
     justifyContent: "center",
+    minWidth: 44,
+    minHeight: 44,
   },
 });
 

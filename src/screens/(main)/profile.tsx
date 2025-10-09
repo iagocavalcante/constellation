@@ -16,6 +16,11 @@ import {
   fetchUserProfile,
   fetchUserPosts,
   getImageUrl,
+  blockUser,
+  unblockUser,
+  isUserBlocked,
+  requestAccountDeletion,
+  deleteAccount,
 } from "@/services/bsky.service";
 import { PostView } from "@atproto/api/dist/client/types/app/bsky/feed/defs";
 import { ProfileView } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
@@ -38,6 +43,8 @@ export default function Profile() {
   const [profile, setProfile] = useState<ProfileView | null>(null);
   const [posts, setPosts] = useState<PostView[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockUri, setBlockUri] = useState<string | undefined>();
 
   // Determine which profile to show - from params or current user
   const profileDid = (params.did as string) || currentAccount?.did;
@@ -55,14 +62,17 @@ export default function Profile() {
 
     try {
       setLoading(true);
-      const [profileData, postsData] = await Promise.all([
+      const [profileData, postsData, blockStatus] = await Promise.all([
         fetchUserProfile(agent, profileDid),
         fetchUserPosts(agent, profileDid),
+        !isOwnProfile ? isUserBlocked(agent, profileDid) : Promise.resolve({ blocked: false }),
       ]);
 
       if (profileData) setProfile(profileData);
       setPosts(postsData.posts);
       setCursor(postsData.cursor);
+      setIsBlocked(blockStatus.blocked);
+      setBlockUri(blockStatus.blockUri);
     } catch (error) {
       console.error("Error loading profile:", error);
     } finally {
@@ -90,6 +100,95 @@ export default function Profile() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Continue",
+          style: "destructive",
+          onPress: async () => {
+            // Request deletion token
+            const success = await requestAccountDeletion(agent);
+            if (success) {
+              Alert.prompt(
+                "Enter Token",
+                "A deletion token has been sent to your email. Please enter it below along with your password.",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async (token) => {
+                      Alert.prompt(
+                        "Enter Password",
+                        "Please enter your password to confirm account deletion.",
+                        [
+                          {
+                            text: "Cancel",
+                            style: "cancel",
+                          },
+                          {
+                            text: "Delete Account",
+                            style: "destructive",
+                            onPress: async (password) => {
+                              if (token && password) {
+                                const deleted = await deleteAccount(agent, password, token);
+                                if (deleted) {
+                                  Alert.alert("Success", "Your account has been deleted.");
+                                  await logoutCurrentAccount("AccountDeleted");
+                                  router.replace("/(auth)/login");
+                                } else {
+                                  Alert.alert("Error", "Failed to delete account. Please check your token and password.");
+                                }
+                              }
+                            },
+                          },
+                        ],
+                        "secure-text"
+                      );
+                    },
+                  },
+                ],
+                "plain-text"
+              );
+            } else {
+              Alert.alert("Error", "Failed to request account deletion. Please try again.");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleAccountSettings = () => {
+    Alert.alert(
+      "Account Settings",
+      "Manage your account",
+      [
+        {
+          text: "Delete Account",
+          style: "destructive",
+          onPress: handleDeleteAccount,
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const handleSignOut = () => {
     Alert.alert(
       "Sign Out",
@@ -112,32 +211,85 @@ export default function Profile() {
     );
   };
 
+  const handleBlockUser = async () => {
+    if (!profileDid) return;
+
+    try {
+      if (isBlocked && blockUri) {
+        // Unblock user
+        const success = await unblockUser(agent, blockUri);
+        if (success) {
+          setIsBlocked(false);
+          setBlockUri(undefined);
+          Alert.alert("Success", "User unblocked successfully");
+        } else {
+          Alert.alert("Error", "Failed to unblock user");
+        }
+      } else {
+        // Block user
+        const uri = await blockUser(agent, profileDid);
+        if (uri) {
+          setIsBlocked(true);
+          setBlockUri(uri);
+          Alert.alert("Success", "User blocked successfully");
+        } else {
+          Alert.alert("Error", "Failed to block user");
+        }
+      }
+    } catch (error) {
+      console.error("Error blocking/unblocking user:", error);
+      Alert.alert("Error", "An error occurred");
+    }
+  };
+
   const handleProfileMenu = () => {
-    Alert.alert(
-      "Profile Actions",
-      "What would you like to do?",
-      [
-        {
-          text: "Report Profile",
-          style: "destructive",
-          onPress: () => {
-            if (profile) {
-              openModal({
-                name: "report-profile",
-                did: profile.did,
-                handle: profile.handle,
-                displayName: profile.displayName,
-              });
-            }
-          },
+    const actions = [
+      {
+        text: isBlocked ? "Unblock User" : "Block User",
+        style: "destructive" as const,
+        onPress: () => {
+          Alert.alert(
+            isBlocked ? "Unblock User" : "Block User",
+            isBlocked
+              ? "Are you sure you want to unblock this user?"
+              : "Are you sure you want to block this user? They will not be able to see your posts or interact with you.",
+            [
+              {
+                text: "Cancel",
+                style: "cancel",
+              },
+              {
+                text: isBlocked ? "Unblock" : "Block",
+                style: "destructive",
+                onPress: handleBlockUser,
+              },
+            ]
+          );
         },
-        {
-          text: "Cancel",
-          style: "cancel",
+      },
+      {
+        text: "Report Profile",
+        style: "destructive" as const,
+        onPress: () => {
+          if (profile) {
+            openModal({
+              name: "report-profile",
+              did: profile.did,
+              handle: profile.handle,
+              displayName: profile.displayName,
+            });
+          }
         },
-      ],
-      { cancelable: true }
-    );
+      },
+      {
+        text: "Cancel",
+        style: "cancel" as const,
+      },
+    ];
+
+    Alert.alert("Profile Actions", "What would you like to do?", actions, {
+      cancelable: true,
+    });
   };
 
   if (loading) {
@@ -234,6 +386,13 @@ export default function Profile() {
                   <Text style={styles.legalLinkText}>Privacy Policy</Text>
                   <Text style={styles.legalLinkArrow}>›</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.legalLink}
+                  onPress={handleAccountSettings}
+                >
+                  <Text style={styles.legalLinkText}>Account Settings</Text>
+                  <Text style={styles.legalLinkArrow}>›</Text>
+                </TouchableOpacity>
               </View>
             )}
 
@@ -290,10 +449,12 @@ const styles = StyleSheet.create({
     fontFamily: "Mulish_700Bold",
   },
   logoutButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     backgroundColor: "#FF3B30",
     borderRadius: 6,
+    minHeight: 44,
+    justifyContent: "center",
   },
   logoutText: {
     color: "#fff",
@@ -301,8 +462,12 @@ const styles = StyleSheet.create({
     fontFamily: "Mulish_600SemiBold",
   },
   menuButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    minHeight: 44,
+    minWidth: 44,
+    justifyContent: "center",
+    alignItems: "center",
   },
   menuIcon: {
     fontSize: 24,
@@ -362,6 +527,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 12,
+    minHeight: 44,
   },
   legalLinkText: {
     fontSize: 14,
@@ -382,6 +548,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     alignItems: "center",
+    minHeight: 44,
+    justifyContent: "center",
   },
   gridItem: {
     width: ITEM_SIZE,
