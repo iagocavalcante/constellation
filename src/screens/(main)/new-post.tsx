@@ -8,20 +8,22 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Dimensions,
   BackHandler,
+  Linking,
+  Keyboard,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { type Camera, CameraView, useCameraPermissions } from "expo-camera";
-import { router, useNavigation } from "expo-router";
+import { useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { createPost } from "@/services/bsky.service";
 import { CameraType } from "expo-image-picker";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useAgent } from "@/state/session";
-
-const WINDOW_HEIGHT = Dimensions.get("window").height;
-const WINDOW_WIDTH = Dimensions.get("window").width;
 
 export default function NewPost() {
   const [image, setImage] = useState<string | null>(null);
@@ -29,7 +31,8 @@ export default function NewPost() {
   const [caption, setCaption] = useState("");
   const [isPosting, setIsPosting] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const cameraRef = useRef<typeof Camera | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<Camera | null>(null);
   const router = useRouter();
   const agent = useAgent();
 
@@ -103,6 +106,26 @@ export default function NewPost() {
     }
   };
 
+  const openCamera = async () => {
+    if (!permission?.granted) {
+      const result = await requestPermission();
+      if (!result.granted) {
+        if (!result.canAskAgain) {
+          Alert.alert(
+            "Camera Access Required",
+            "Please enable camera access in Settings to take photos.",
+            [
+              { text: "Cancel", style: "cancel" },
+              { text: "Open Settings", onPress: () => Linking.openSettings() },
+            ],
+          );
+        }
+        return;
+      }
+    }
+    setShowCamera(true);
+  };
+
   const pickImage = async () => {
     Alert.alert(
       "Choose Image",
@@ -110,7 +133,7 @@ export default function NewPost() {
       [
         {
           text: "Take Photo",
-          onPress: () => setShowCamera(true),
+          onPress: openCamera,
         },
         {
           text: "Choose from Library",
@@ -176,11 +199,22 @@ export default function NewPost() {
     };
   }, []);
 
-  const takePicture = async (camera: typeof Camera) => {
-    if (camera) {
-      const photo = await camera.takePictureAsync();
-      setImage(photo.uri);
-      setShowCamera(false);
+  const takePicture = async () => {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 1,
+          skipProcessing: false,
+        });
+        if (photo) {
+          setImage(photo.uri);
+        }
+      } catch (error) {
+        console.error("Error taking picture:", error);
+        Alert.alert("Error", "Failed to take photo. Please try again.");
+      } finally {
+        setShowCamera(false);
+      }
     }
   };
 
@@ -219,7 +253,7 @@ export default function NewPost() {
           <View style={styles.captureButtonContainer}>
             <TouchableOpacity
               style={styles.captureButton}
-              onPress={() => takePicture(cameraRef.current)}
+              onPress={takePicture}
             >
               <View style={styles.captureButtonInner} />
             </TouchableOpacity>
@@ -230,49 +264,66 @@ export default function NewPost() {
   }
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.imagePickerContainer}
-        onPress={pickImage}
-        disabled={isPosting}
-      >
-        {image ? (
-          <Image source={{ uri: image }} style={styles.imagePreview} />
-        ) : (
-          <View style={styles.placeholder}>
-            <Ionicons name="image-outline" size={48} color="#666" />
-            <Text style={styles.placeholderText}>Tap to select an image</Text>
-          </View>
-        )}
-      </TouchableOpacity>
-
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Write a caption..."
-          value={caption}
-          onChangeText={setCaption}
-          multiline
-          maxLength={300}
-          editable={!isPosting}
-        />
-
-        <TouchableOpacity
-          style={[
-            styles.button,
-            (!caption || isPosting) && styles.buttonDisabled,
-          ]}
-          onPress={handlePost}
-          disabled={!caption || isPosting}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+          keyboardShouldPersistTaps="handled"
         >
-          {isPosting ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.buttonText}>Share Post</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
+          <TouchableOpacity
+            style={styles.imagePickerContainer}
+            onPress={pickImage}
+            disabled={isPosting}
+          >
+            {image ? (
+              <Image source={{ uri: image }} style={styles.imagePreview} />
+            ) : (
+              <View style={styles.placeholder}>
+                <Ionicons name="image-outline" size={48} color="#666" />
+                <Text style={styles.placeholderText}>
+                  Tap to select an image
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.form}>
+            <TextInput
+              style={styles.input}
+              placeholder="Write a caption..."
+              value={caption}
+              onChangeText={setCaption}
+              multiline
+              maxLength={300}
+              editable={!isPosting}
+              returnKeyType="done"
+              blurOnSubmit
+              onSubmitEditing={Keyboard.dismiss}
+            />
+
+            <TouchableOpacity
+              style={[
+                styles.button,
+                (!caption || isPosting) && styles.buttonDisabled,
+              ]}
+              onPress={handlePost}
+              disabled={!caption || isPosting}
+            >
+              {isPosting ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.buttonText}>Share Post</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -281,7 +332,10 @@ const styles = StyleSheet.create({
     marginTop: 64,
     flex: 1,
     backgroundColor: "#fff",
+  },
+  contentContainer: {
     padding: 16,
+    paddingBottom: 40,
   },
   fullScreenContainer: {
     position: "absolute",
@@ -359,8 +413,6 @@ const styles = StyleSheet.create({
   },
   cameraView: {
     flex: 1,
-    height: WINDOW_HEIGHT,
-    width: WINDOW_WIDTH,
   },
   cameraControlsContainer: {
     position: "absolute",

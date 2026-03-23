@@ -166,13 +166,12 @@ export async function createPost(
         [
           {
             resize: {
-              width: 1024,
-              height: 1024,
+              width: 2048,
             },
           },
         ],
         {
-          compress: 0.8, // 80% quality
+          compress: 1, // Maximum quality
           format: ImageManipulator.SaveFormat.JPEG,
         },
       );
