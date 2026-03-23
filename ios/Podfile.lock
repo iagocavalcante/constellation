@@ -2176,8 +2176,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - SDWebImage/Core (5.21.2)
-  - SDWebImageWebPCoder (0.14.6):
+  - SDWebImage/Core (5.21.6)
+  - SDWebImageWebPCoder (0.15.0):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
@@ -2624,8 +2624,8 @@ SPEC CHECKSUMS:
   RNReanimated: 2313402fe27fecb7237619e9c6fcee3177f08a65
   RNScreens: 482e9707f9826230810c92e765751af53826d509
   RNSVG: 794f269526df9ddc1f79b3d1a202b619df0368e3
-  SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
-  SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
+  SDWebImage: 1bb6a1b84b6fe87b972a102bdc77dd589df33477
+  SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
   Yoga: adb397651e1c00672c12e9495babca70777e411e

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Constel",
     "slug": "constel",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "constel",
@@ -12,7 +12,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.iagocavalcante.constellation",
       "appleTeamId": "URMS5ES2VR",
-      "buildNumber": "8"
+      "buildNumber": "10"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +24,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "versionCode": 5
+      "versionCode": 10
     },
     "web": {
       "bundler": "metro",
