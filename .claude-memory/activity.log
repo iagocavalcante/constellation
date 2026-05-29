@@ -1,0 +1,89 @@
+2026-03-20 17:20:13|Glob|app.json
+2026-03-20 17:20:13|Glob|app.config.*
+2026-03-20 17:20:15|Glob|**/*camera*
+2026-03-20 17:20:15|Glob|**/*pick*
+2026-03-20 17:20:15|Glob|**/*photo*
+2026-03-20 17:20:16|Bash|find /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation -type f \( -name "*.json" -o -nam
+2026-03-20 17:20:19|Grep|camera|CameraScreen|ImagePicker|launchCameraAsync|launchImageLibraryAsync
+2026-03-20 17:20:20|Read|app.json
+2026-03-20 17:20:20|Bash|find /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src -type f -name "*.tsx" -o -nam
+2026-03-20 17:20:22|Read|src/screens/(main)/new-post.tsx
+2026-03-20 17:20:23|Read|src/lib/media/picker.tsx
+2026-03-20 17:20:23|Read|src/lib/media/picker.shared.ts
+2026-03-20 17:20:26|Read|src/screens/(main)/_layout.tsx
+2026-03-20 17:20:26|Read|src/components/custom-tab-bar.tsx
+2026-03-20 17:20:27|Bash|find /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation -type f \( -name "*.tsx" -o -name
+2026-03-20 17:20:29|Bash|find /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src -type f \( -name "*.tsx" -o -
+2026-03-20 17:20:30|Read|src/screens/_layout.tsx
+2026-03-20 17:20:30|Read|src/screens/(main)/index.tsx
+2026-03-20 17:20:33|Read|src/screens/(main)/index.tsx
+2026-03-20 17:20:33|Bash|grep -rn "expo-image-picker\|expo-camera" /Users/iagocavalcante/Workspaces/IagoCavalcante/constellat
+2026-03-20 17:20:34|Bash|grep -A5 -B5 "supportsTablet\|iPad\|tablet" /Users/iagocavalcante/Workspaces/IagoCavalcante/constell
+2026-03-20 17:20:49|Bash|cat /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src/screens/\(main\)/index.tsx | h
+2026-03-20 17:20:49|Bash|grep -n "showCamera\|CameraView\|useCameraPermissions" /Users/iagocavalcante/Workspaces/IagoCavalcan
+2026-03-20 17:20:49|Bash|grep -rn "aspectRatio\|aspect.*ratio\|iPad\|tablet\|isTablet" /Users/iagocavalcante/Workspaces/IagoC
+2026-03-20 17:20:52|Read|src/platform/detection.ts
+2026-03-20 17:20:53|Bash|grep -rn "Dimensions\|useWindowDimensions\|Platform.select" /Users/iagocavalcante/Workspaces/IagoCav
+2026-03-20 17:20:53|Bash|find /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation -name "package.json" -type f | he
+2026-03-20 17:20:55|Read|src/components/auth-guard.tsx
+2026-03-20 17:20:56|Bash|grep -n "new-post\|camera" /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src/screens
+2026-03-20 17:20:56|Bash|grep -rn "imagePicker\|ImagePicker\|launchImageLibraryAsync\|launchCameraAsync" /Users/iagocavalcant
+2026-03-20 17:21:00|Bash|find /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src -type f \( -name "*.tsx" -o -
+2026-03-20 17:21:10|Bash|ls -la /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src/screens/\(main\)/
+2026-03-20 17:21:10|Bash|grep -A 10 "cameraPermission\|microphonePermission" /Users/iagocavalcante/Workspaces/IagoCavalcante/
+2026-03-20 17:21:12|Read|src/lib/media/manip.ts
+2026-03-20 17:21:12|Bash|find /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src/lib/media -type f | sort
+2026-03-20 17:21:13|Bash|ls -la /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src/lib/media/
+2026-03-20 17:21:18|Read|src/lib/media/types.ts
+2026-03-20 17:21:19|Read|src/lib/media/util.ts
+2026-03-20 18:25:14|Bash|grep -rn "iPad\|tablet\|isTablet\|supportsTablet\|splitView" /Users/iagocavalcante/Workspaces/IagoCa
+2026-03-20 18:25:18|Bash|grep -n "useCameraPermissions\|requestCameraPermissionAsync\|permission" /Users/iagocavalcante/Works
+2026-03-20 18:25:18|Bash|grep -rn "react-native-image-crop-picker" /Users/iagocavalcante/Workspaces/IagoCavalcante/constellat
+2026-03-20 18:25:21|Bash|grep -A 200 "export default function NewPost" /Users/iagocavalcante/Workspaces/IagoCavalcante/conste
+2026-03-20 18:25:21|Bash|grep -c "useCameraPermissions" /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src/scr
+2026-03-20 18:25:30|Bash|head -40 /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src/screens/\(main\)/new-post
+2026-03-20 18:25:33|Bash|cat /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/app.json | grep -A 20 "ios"
+2026-03-20 18:25:33|Bash|find /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/ios -name "Info.plist" 2>/dev/nul
+2026-03-20 18:25:49|Bash|head -100 /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/src/screens/\(main\)/profile
+2026-03-20 18:25:49|Bash|grep -n "Dimensions\|useWindowDimensions\|Platform" /Users/iagocavalcante/Workspaces/IagoCavalcante/
+2026-03-20 18:25:52|Bash|cat /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/app.json | grep -A 8 "expo-camera"
+2026-03-20 18:25:52|Bash|grep -rn "orientation" /Users/iagocavalcante/Workspaces/IagoCavalcante/constellation/app.json
+2026-03-20 18:26:15|Agent|
+2026-03-20 18:26:29|Read|src/screens/(main)/new-post.tsx
+2026-03-20 18:26:29|Read|src/components/custom-tab-bar.tsx
+2026-03-20 18:26:29|Read|app.json
+2026-03-20 18:27:39|Edit|src/screens/(main)/new-post.tsx
+2026-03-20 18:27:50|Edit|src/screens/(main)/new-post.tsx
+2026-03-20 18:27:56|Edit|src/screens/(main)/new-post.tsx
+2026-03-20 18:28:00|Edit|src/screens/(main)/new-post.tsx
+2026-03-20 18:28:04|Edit|src/screens/(main)/new-post.tsx
+2026-03-20 18:28:08|Read|src/screens/(main)/new-post.tsx
+2026-03-20 18:28:18|Grep|showCamera
+2026-03-20 18:28:26|Read|src/screens/(main)/_layout.tsx
+2026-03-20 18:32:42|Bash|npm install
+2026-03-20 18:34:22|Bash|npx expo prebuild --clean
+2026-03-20 20:27:10|Glob|app.{json,config.js,config.ts}
+2026-03-20 20:27:12|Read|app.json
+2026-03-20 20:28:27|Edit|app.json
+2026-03-20 20:28:27|Edit|app.json
+2026-03-20 20:29:08|Bash|npx expo prebuild --clean
+2026-03-23 12:46:26|Grep|camera|Camera|CameraView|useCameraPermission
+2026-03-23 12:46:29|Read|src/screens/(main)/new-post.tsx
+2026-03-23 12:46:36|Read|src/services/bsky.service.ts
+2026-03-23 12:46:44|Edit|src/screens/(main)/new-post.tsx
+2026-03-23 12:46:52|Edit|src/services/bsky.service.ts
+2026-03-23 12:49:02|Read|src/screens/(main)/new-post.tsx
+2026-03-23 12:49:08|Edit|src/screens/(main)/new-post.tsx
+2026-03-23 12:49:13|Read|src/screens/(main)/new-post.tsx
+2026-03-23 12:49:17|Read|src/screens/(main)/new-post.tsx
+2026-03-23 12:49:28|Edit|src/screens/(main)/new-post.tsx
+2026-03-23 12:49:34|Edit|src/screens/(main)/new-post.tsx
+2026-03-23 12:50:23|Edit|app.json
+2026-03-23 12:50:27|Skill|
+2026-03-23 12:50:31|Bash|git branch --show-current
+2026-03-23 12:53:28|Bash|git status
+2026-03-23 12:53:29|Bash|git diff
+2026-03-23 12:53:29|Bash|git log -5 --oneline
+2026-03-23 12:56:05|Bash|git add app.json package-lock.json && git commit -m "chore: bump version to 1.1.0 and build number t
+2026-03-23 12:56:44|Bash|git add src/screens/\(main\)/new-post.tsx src/services/bsky.service.ts && git commit -m "feat: impro
+2026-03-23 12:56:48|Bash|git log --oneline -2 && git status
